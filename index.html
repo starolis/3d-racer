@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Racer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        .landing {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px 30px;
+        }
+
+        .title {
+            font-size: 64px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #ccd6f6;
+            margin-bottom: 40px;
+        }
+
+        .description {
+            font-size: 17px;
+            line-height: 1.7;
+            color: #d0d8ee;
+            margin-bottom: 40px;
+        }
+
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 45px;
+            flex-wrap: wrap;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 6px;
+        }
+
+        .feature-text {
+            font-size: 13px;
+            color: #a8b2d1;
+        }
+
+        .play-button {
+            display: inline-block;
+            padding: 20px 60px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #000;
+            background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 35px rgba(255, 215, 0, 0.6);
+        }
+
+        .play-button:active {
+            transform: scale(0.98);
+        }
+
+        .credit {
+            margin-top: 50px;
+            font-size: 13px;
+            color: #7a86a6;
+        }
+
+        /* Decorative road lines in background */
+        .road-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.06;
+        }
+
+        .road-bg::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 3px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                white 0px,
+                white 30px,
+                transparent 30px,
+                transparent 60px
+            );
+        }
+
+        .landing {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="road-bg"></div>
+    <div class="landing">
+        <div class="title">3D Racer</div>
+        <div class="subtitle">A First-Person Racing Game</div>
+        <p class="description">
+            Choose from four unique cars, each with their own speed, acceleration, and handling.
+            Race against three AI opponents across 3 laps of a dynamic, curving track.
+            Can you take first place?
+        </p>
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">4</div>
+                <div class="feature-text">Unique Cars</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">3</div>
+                <div class="feature-text">AI Opponents</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">3</div>
+                <div class="feature-text">Laps to Win</div>
+            </div>
+        </div>
+        <a href="game.html" class="play-button">Play Now</a>
+        <p class="credit">Created by a student at a K-5 workshop using Claude Artifacts</p>
+    </div>
+</body>
+</html>

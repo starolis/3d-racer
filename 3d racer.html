@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Racing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background: #2d2d2d;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            z-index: 10;
+        }
+        
+        #speedometer {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: #00ff00;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        
+        #carSelection {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+            z-index: 100;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        #carSelection h2 {
+            margin-bottom: 30px;
+            color: #ffd700;
+            font-size: 32px;
+        }
+        
+        .car-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .car-option {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+        
+        .car-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .car-option.selected {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.2);
+        }
+        
+        .car-option h3 {
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+        
+        .car-preview {
+            width: 60px;
+            height: 100px;
+            margin: 10px auto;
+            border-radius: 5px;
+        }
+        
+        .stat-bar {
+            margin: 8px 0;
+            text-align: left;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            margin-bottom: 3px;
+            color: #ccc;
+        }
+        
+        .stat-fill {
+            background: rgba(255, 255, 255, 0.2);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .stat-value {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .advantage {
+            font-size: 13px;
+            color: #00ff00;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        #instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+            z-index: 100;
+        }
+        
+        #instructions h2 {
+            margin-bottom: 20px;
+            color: #ffd700;
+            font-size: 32px;
+        }
+        
+        #instructions p {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+        
+        #startButton {
+            margin-top: 25px;
+            padding: 15px 40px;
+            font-size: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        
+        #startButton:hover {
+            transform: scale(1.05);
+        }
+        
+        #startButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #confirmCarButton {
+            margin-top: 25px;
+            padding: 15px 40px;
+            font-size: 24px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        #confirmCarButton:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+        }
+        
+        #confirmCarButton:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background: #555;
+            box-shadow: none;
+        }
+        
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+            display: none;
+            z-index: 100;
+        }
+        
+        #gameOver h2 {
+            margin-bottom: 20px;
+            color: #ffd700;
+            font-size: 36px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div id="ui">
+            <div>Lap: <span id="lapCounter">1/3</span></div>
+            <div>Position: <span id="position">1st</span></div>
+        </div>
+        
+        <div id="speedometer">
+            <span id="speed">0</span> km/h
+        </div>
+        
+        <div id="carSelection">
+            <h2>🏎️ Choose Your Car</h2>
+            <p style="margin-bottom: 20px; color: #ccc; font-size: 16px;">Click on a car to select it, then confirm your choice</p>
+            <div class="car-grid">
+                <div class="car-option" data-car="speedster">
+                    <h3>🔴 Speedster</h3>
+                    <div class="car-preview" style="background: #ff0000;"></div>
+                    <div class="stat-bar">
+                        <div class="stat-label">Top Speed</div>
+                        <div class="stat-fill">
+                            <div class="stat-value" style="width: 95%; background: #ff4444;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">Acceleration</div>
+                        <div class="stat-fill">
+                            <div class="stat-value" style="width: 70%; background: #44ff44;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">Handling</div>
+                        <div class="stat-fill">
+                            <div class="stat-value" style="width: 60%; background: #4444ff;"></div>
+                        </div>
+                    </div>
+                    <div class="advantage">⚡ Highest top speed</div>
+                </div>
+                
+                <div class="car-option" data-car="balanced">
+                    <h3>🟢 All-Rounder</h3>
+                    <div class="car-preview" style="background: #00aa00;"></div>
+                    <div class="stat-bar">
+                        <div class="stat-label">Top Speed</div>
+                        <div class="stat-fill">
+                            <div class="stat-value" style="width: 75%; background: #ff4444;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">Acceleration</div>
+                        <div class="stat-fill">
+                            <div class="stat-value" style="width: 75%; background: #44ff44;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">Handling</div>
+                        <div class="stat-fill">
+                            <div class="stat-value" style="width: 75%; background: #4444ff;"></div>
+                        </div>
+                    </div>
+                    <div class="advantage">⚖️ Balanced performance</div>
+                </div>
+                
+                <div class="car-option" data-car="accelerator">
+                    <h3>🟡 Rocket</h3>
+                    <div class="car-preview" style="background: #ffdd00;"></div>
+                    <div class="stat-bar">
+                        <div class="stat-label">Top Speed</div>
+                        <div class="stat-fill">
+                            <div class="stat-value" style="width: 65%; background: #ff4444;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">Acceleration</div>
+                        <div class="stat-fill">
+                            <div class="stat-value" style="width: 95%; background: #44ff44;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">Handling</div>
+                        <div class="stat-fill">
+                            <div class="stat-value" style="width: 70%; background: #4444ff;"></div>
+                        </div>
+                    </div>
+                    <div class="advantage">🚀 Lightning acceleration</div>
+                </div>
+                
+                <div class="car-option" data-car="handler">
+                    <h3>🔵 Drifter</h3>
+                    <div class="car-preview" style="background: #0066ff;"></div>
+                    <div class="stat-bar">
+                        <div class="stat-label">Top Speed</div>
+                        <div class="stat-fill">
+                            <div class="stat-value" style="width: 70%; background: #ff4444;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">Acceleration</div>
+                        <div class="stat-fill">
+                            <div class="stat-value" style="width: 65%; background: #44ff44;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">Handling</div>
+                        <div class="stat-fill">
+                            <div class="stat-value" style="width: 95%; background: #4444ff;"></div>
+                        </div>
+                    </div>
+                    <div class="advantage">🎯 Superior handling</div>
+                </div>
+            </div>
+            <button id="confirmCarButton" disabled>Confirm Selection</button>
+        </div>
+        
+        <div id="instructions" class="hidden">
+            <h2>🏎️ Racing Game</h2>
+            <p><strong>Arrow Keys</strong> - Steer and Accelerate</p>
+            <p><strong>↑</strong> Accelerate | <strong>↓</strong> Brake</p>
+            <p><strong>←</strong> Left | <strong>→</strong> Right</p>
+            <p style="margin-top: 20px; color: #ffd700;">Complete 3 laps and beat your opponents!</p>
+            <button id="startButton">START RACE</button>
+        </div>
+        
+        <div id="gameOver">
+            <h2 id="resultText">Race Complete!</h2>
+            <p id="finalPosition" style="font-size: 24px; margin: 20px 0;"></p>
+            <button id="restartButton" style="padding: 15px 40px; font-size: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px;">Race Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let gameStarted = false;
+        let gameEnded = false;
+        let selectedCarType = null;
+        let trackOffset = 0; // Tracks overall position on the infinite track
+        let countdownActive = false;
+        let countdownNumber = 3;
+        let trackCurve = 0; // Current curve of the track (-1 to 1, left to right)
+        let trackCurveTarget = 0; // Target curve to smoothly transition to
+        
+        // Car type definitions with different stats
+        const carTypes = {
+            speedster: {
+                name: 'Speedster',
+                color: '#ff0000',
+                maxSpeed: 14,
+                acceleration: 0.25,
+                turnSpeed: 3.5,
+                friction: 0.04,
+                advantage: 'Highest top speed for long straightaways'
+            },
+            balanced: {
+                name: 'All-Rounder',
+                color: '#00aa00',
+                maxSpeed: 11,
+                acceleration: 0.3,
+                turnSpeed: 4.5,
+                friction: 0.05,
+                advantage: 'Well-balanced for all situations'
+            },
+            accelerator: {
+                name: 'Rocket',
+                color: '#ffdd00',
+                maxSpeed: 10,
+                acceleration: 0.45,
+                turnSpeed: 4,
+                friction: 0.06,
+                advantage: 'Quick off the line, great for overtaking'
+            },
+            handler: {
+                name: 'Drifter',
+                color: '#0066ff',
+                maxSpeed: 11,
+                acceleration: 0.28,
+                turnSpeed: 6,
+                friction: 0.055,
+                advantage: 'Superior control for tight maneuvering'
+            }
+        };
+        
+        // Track properties
+        const track = {
+            width: 600,
+            centerX: canvas.width / 2,
+            roadColor: '#404040',
+            grassColor: '#2d5016',
+            lineColor: '#ffffff'
+        };
+        
+        // Player car (will be initialized after selection)
+        let player = {
+            x: canvas.width / 2,
+            y: canvas.height - 80, // Much lower for first-person view
+            width: 40,
+            height: 70,
+            speed: 0,
+            maxSpeed: 12,
+            acceleration: 0.3,
+            friction: 0.05,
+            turnSpeed: 4,
+            color: '#ff0000',
+            lane: 0,
+            laps: 0,
+            checkpoints: [false, false, false, false],
+            trackPosition: 0 // Actual position on the track
+        };
+        
+        // AI opponents with different car types
+        const opponents = [
+            { 
+                x: canvas.width / 2 - 80, 
+                y: canvas.height - 250, 
+                width: 40, 
+                height: 70, 
+                speed: 9.5, 
+                color: '#0066ff', 
+                lane: -1, 
+                laps: 0, 
+                checkpoints: [false, false, false, false],
+                maxSpeed: 11,
+                acceleration: 0.28,
+                carType: 'handler',
+                trackPosition: 150 // Starting ahead
+            },
+            { 
+                x: canvas.width / 2 + 80, 
+                y: canvas.height - 350, 
+                width: 40, 
+                height: 70, 
+                speed: 11, 
+                color: '#ff0000', 
+                lane: 1, 
+                laps: 0, 
+                checkpoints: [false, false, false, false],
+                maxSpeed: 14,
+                acceleration: 0.25,
+                carType: 'speedster',
+                trackPosition: 300 // Starting further ahead
+            },
+            { 
+                x: canvas.width / 2, 
+                y: canvas.height - 450, 
+                width: 40, 
+                height: 70, 
+                speed: 8.5, 
+                color: '#ffdd00', 
+                lane: 0, 
+                laps: 0, 
+                checkpoints: [false, false, false, false],
+                maxSpeed: 10,
+                acceleration: 0.45,
+                carType: 'accelerator',
+                trackPosition: 450 // Starting even further ahead
+            }
+        ];
+        
+        // Road lines
+        const roadLines = [];
+        const vanishingY = canvas.height * 0.35;
+        for (let i = 0; i < 15; i++) {
+            roadLines.push({
+                y: vanishingY + i * 50,
+                height: 30
+            });
+        }
+        
+        // Checkpoints for lap counting
+        const checkpoints = [
+            { y: 0, height: 50 },
+            { y: 150, height: 50 },
+            { y: 300, height: 50 },
+            { y: 450, height: 50 }
+        ];
+        
+        // Keys
+        const keys = {
+            up: false,
+            down: false,
+            left: false,
+            right: false
+        };
+        
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') keys.up = true;
+            if (e.key === 'ArrowDown') keys.down = true;
+            if (e.key === 'ArrowLeft') keys.left = true;
+            if (e.key === 'ArrowRight') keys.right = true;
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowUp') keys.up = false;
+            if (e.key === 'ArrowDown') keys.down = false;
+            if (e.key === 'ArrowLeft') keys.left = false;
+            if (e.key === 'ArrowRight') keys.right = false;
+        });
+        
+        // Car selection
+        document.querySelectorAll('.car-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.car-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedCarType = this.dataset.car;
+                document.getElementById('confirmCarButton').disabled = false;
+            });
+        });
+        
+        document.getElementById('confirmCarButton').addEventListener('click', () => {
+            if (selectedCarType) {
+                // Apply selected car stats to player
+                const carStats = carTypes[selectedCarType];
+                player.color = carStats.color;
+                player.maxSpeed = carStats.maxSpeed;
+                player.acceleration = carStats.acceleration;
+                player.turnSpeed = carStats.turnSpeed;
+                player.friction = carStats.friction;
+                
+                document.getElementById('carSelection').classList.add('hidden');
+                document.getElementById('instructions').classList.remove('hidden');
+            }
+        });
+        
+        document.getElementById('startButton').addEventListener('click', () => {
+            document.getElementById('instructions').classList.add('hidden');
+            startCountdown();
+        });
+        
+        document.getElementById('restartButton').addEventListener('click', () => {
+            location.reload();
+        });
+        
+        function drawTrack() {
+            // Sky gradient (no more visible end of road)
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.35);
+            skyGradient.addColorStop(0, '#87CEEB'); // Sky blue
+            skyGradient.addColorStop(1, '#E0F6FF'); // Light blue at horizon
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.35);
+            
+            // Grass
+            ctx.fillStyle = track.grassColor;
+            ctx.fillRect(0, canvas.height * 0.35, canvas.width, canvas.height * 0.65);
+            
+            // 3D perspective road with curves
+            const vanishingPoint = canvas.width / 2;
+            const vanishingY = canvas.height * 0.35; // Horizon line (higher up now)
+            const roadWidthBottom = track.width;
+            const roadWidthTop = 80; // Narrower at horizon for infinite feel
+            
+            // Apply curve offset - road shifts left/right based on track curve
+            const curveOffset = trackCurve * 100;
+            
+            // Draw road as curved trapezoid for 3D effect
+            ctx.fillStyle = track.roadColor;
+            ctx.beginPath();
+            ctx.moveTo(vanishingPoint - roadWidthTop / 2 + curveOffset, vanishingY);
+            ctx.lineTo(vanishingPoint + roadWidthTop / 2 + curveOffset, vanishingY);
+            ctx.lineTo(track.centerX + roadWidthBottom / 2, canvas.height);
+            ctx.lineTo(track.centerX - roadWidthBottom / 2, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Road lines with 3D perspective and curve
+            roadLines.forEach((line, index) => {
+                const lineProgress = (line.y - vanishingY) / (canvas.height - vanishingY);
+                
+                if (lineProgress < 0 || lineProgress > 1) return;
+                
+                // Calculate width and curve at this Y position
+                const roadWidthAtY = roadWidthTop + (roadWidthBottom - roadWidthTop) * lineProgress;
+                const curveAtY = curveOffset * (1 - lineProgress); // Curve diminishes towards bottom
+                const lineWidth = 3 + lineProgress * 7;
+                
+                ctx.fillStyle = track.lineColor;
+                ctx.globalAlpha = 0.5 + lineProgress * 0.5;
+                
+                // Center line with curve
+                const centerX = vanishingPoint + curveAtY;
+                ctx.fillRect(centerX - lineWidth / 2, line.y, lineWidth, line.height * lineProgress);
+            });
+            ctx.globalAlpha = 1.0;
+            
+            // Road edges with 3D perspective and curve
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            // Left edge
+            ctx.moveTo(vanishingPoint - roadWidthTop / 2 + curveOffset, vanishingY);
+            ctx.lineTo(track.centerX - roadWidthBottom / 2, canvas.height);
+            // Right edge
+            ctx.moveTo(vanishingPoint + roadWidthTop / 2 + curveOffset, vanishingY);
+            ctx.lineTo(track.centerX + roadWidthBottom / 2, canvas.height);
+            ctx.stroke();
+            
+            // Add road segments for depth with curve
+            const numSegments = 25;
+            ctx.strokeStyle = 'rgba(100, 100, 100, 0.2)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < numSegments; i++) {
+                const segmentY = vanishingY + (canvas.height - vanishingY) * (i / numSegments);
+                const segmentProgress = (segmentY - vanishingY) / (canvas.height - vanishingY);
+                const segmentWidth = roadWidthTop + (roadWidthBottom - roadWidthTop) * segmentProgress;
+                const segmentCurve = curveOffset * (1 - segmentProgress);
+                
+                ctx.globalAlpha = 0.3 + segmentProgress * 0.4;
+                ctx.beginPath();
+                ctx.moveTo(vanishingPoint - segmentWidth / 2 + segmentCurve, segmentY);
+                ctx.lineTo(vanishingPoint + segmentWidth / 2 + segmentCurve, segmentY);
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1.0;
+            
+            // Hills/scenery in background for depth
+            ctx.fillStyle = '#4a7c4e';
+            ctx.beginPath();
+            ctx.moveTo(0, vanishingY);
+            for (let x = 0; x < canvas.width; x += 50) {
+                const hillHeight = Math.sin(x * 0.01 + trackOffset * 0.001) * 30;
+                ctx.lineTo(x, vanishingY + hillHeight);
+            }
+            ctx.lineTo(canvas.width, vanishingY);
+            ctx.lineTo(canvas.width, vanishingY + 80);
+            ctx.lineTo(0, vanishingY + 80);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        function drawCar(car) {
+            // Only draw if car is visible on screen
+            if (car.y < -car.height || car.y > canvas.height + car.height) {
+                return;
+            }
+            
+            // 3D perspective calculations with new horizon
+            const vanishingPoint = canvas.width / 2;
+            const vanishingY = canvas.height * 0.35;
+            const roadWidthTop = 80;
+            const roadWidthBottom = track.width;
+            
+            // Calculate depth/perspective based on Y position
+            const depthFactor = Math.max(0, Math.min(1, (car.y - vanishingY) / (canvas.height - vanishingY)));
+            const perspectiveFactor = Math.max(0.15, Math.min(1.0, depthFactor));
+            
+            // Calculate road width at car's Y position
+            const roadWidthAtY = roadWidthTop + (roadWidthBottom - roadWidthTop) * depthFactor;
+            
+            // Apply curve offset to car position
+            const curveAtY = trackCurve * 100 * (1 - depthFactor);
+            
+            // Convert lane position to 3D screen position with curve
+            const laneOffset = car.lane * (roadWidthAtY / 3);
+            const screenX = vanishingPoint + laneOffset + curveAtY;
+            
+            // Scale car based on perspective
+            const scaledWidth = car.width * perspectiveFactor;
+            const scaledHeight = car.height * perspectiveFactor;
+            
+            // Car body
+            ctx.fillStyle = car.color;
+            ctx.fillRect(screenX - scaledWidth / 2, car.y - scaledHeight / 2, scaledWidth, scaledHeight);
+            
+            // Car windows
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(screenX - scaledWidth / 2 + 5 * perspectiveFactor, car.y - scaledHeight / 2 + 10 * perspectiveFactor, scaledWidth - 10 * perspectiveFactor, 15 * perspectiveFactor);
+            ctx.fillRect(screenX - scaledWidth / 2 + 5 * perspectiveFactor, car.y + scaledHeight / 2 - 25 * perspectiveFactor, scaledWidth - 10 * perspectiveFactor, 15 * perspectiveFactor);
+            
+            // Wheels
+            ctx.fillStyle = '#222222';
+            const wheelWidth = 6 * perspectiveFactor;
+            const wheelHeight = 15 * perspectiveFactor;
+            ctx.fillRect(screenX - scaledWidth / 2 - 3 * perspectiveFactor, car.y - scaledHeight / 2 + 5 * perspectiveFactor, wheelWidth, wheelHeight);
+            ctx.fillRect(screenX + scaledWidth / 2 - 3 * perspectiveFactor, car.y - scaledHeight / 2 + 5 * perspectiveFactor, wheelWidth, wheelHeight);
+            ctx.fillRect(screenX - scaledWidth / 2 - 3 * perspectiveFactor, car.y + scaledHeight / 2 - 20 * perspectiveFactor, wheelWidth, wheelHeight);
+            ctx.fillRect(screenX + scaledWidth / 2 - 3 * perspectiveFactor, car.y + scaledHeight / 2 - 20 * perspectiveFactor, wheelWidth, wheelHeight);
+            
+            // Draw driver's head poking out
+            const headRadius = 12 * perspectiveFactor;
+            const headY = car.y - scaledHeight / 2 - headRadius / 2;
+            
+            // Head shadow for depth
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.arc(screenX + 1, headY + 1, headRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Head
+            ctx.fillStyle = '#ffdbac';
+            ctx.beginPath();
+            ctx.arc(screenX, headY, headRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Helmet/hair with gradient for 3D effect
+            const gradient = ctx.createRadialGradient(screenX - headRadius * 0.3, headY - headRadius * 0.3, 0, screenX, headY, headRadius);
+            gradient.addColorStop(0, '#444444');
+            gradient.addColorStop(1, '#111111');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(screenX, headY, headRadius, Math.PI, Math.PI * 2);
+            ctx.fill();
+            
+            // Goggles with shine
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            const goggleWidth = headRadius * 2.2;
+            const goggleHeight = headRadius * 0.5;
+            ctx.fillRect(screenX - goggleWidth / 2, headY - goggleHeight / 2, goggleWidth, goggleHeight);
+            
+            // Goggle reflection
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.fillRect(screenX - goggleWidth / 2 + 2, headY - goggleHeight / 2 + 1, goggleWidth * 0.4, goggleHeight * 0.4);
+        }
+        
+        function drawPlayerHood() {
+            // 3D perspective player hood (smaller/lower profile)
+            const vanishingPoint = canvas.width / 2;
+            const hoodHeight = 80; // Reduced from 140
+            const hoodWidthBottom = 200; // Reduced from 300
+            const hoodWidthTop = 35; // Reduced from 50
+            
+            // Create gradient for 3D depth
+            const hoodGradient = ctx.createLinearGradient(vanishingPoint, canvas.height - hoodHeight, vanishingPoint, canvas.height);
+            hoodGradient.addColorStop(0, player.color);
+            hoodGradient.addColorStop(0.5, player.color);
+            hoodGradient.addColorStop(1, shadeColor(player.color, -40));
+            
+            // Main hood body with 3D perspective
+            ctx.fillStyle = hoodGradient;
+            ctx.beginPath();
+            ctx.moveTo(vanishingPoint - hoodWidthTop / 2, canvas.height - hoodHeight);
+            ctx.lineTo(vanishingPoint + hoodWidthTop / 2, canvas.height - hoodHeight);
+            ctx.lineTo(vanishingPoint + hoodWidthBottom / 2, canvas.height);
+            ctx.lineTo(vanishingPoint - hoodWidthBottom / 2, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Left side panel (darker for depth)
+            ctx.fillStyle = shadeColor(player.color, -50);
+            ctx.beginPath();
+            ctx.moveTo(vanishingPoint - hoodWidthTop / 2, canvas.height - hoodHeight);
+            ctx.lineTo(vanishingPoint - hoodWidthTop / 2 - 20, canvas.height - hoodHeight + 15);
+            ctx.lineTo(vanishingPoint - hoodWidthBottom / 2 - 25, canvas.height);
+            ctx.lineTo(vanishingPoint - hoodWidthBottom / 2, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Right side panel (darker for depth)
+            ctx.fillStyle = shadeColor(player.color, -50);
+            ctx.beginPath();
+            ctx.moveTo(vanishingPoint + hoodWidthTop / 2, canvas.height - hoodHeight);
+            ctx.lineTo(vanishingPoint + hoodWidthTop / 2 + 20, canvas.height - hoodHeight + 15);
+            ctx.lineTo(vanishingPoint + hoodWidthBottom / 2 + 25, canvas.height);
+            ctx.lineTo(vanishingPoint + hoodWidthBottom / 2, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Hood center line/vent detail
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.moveTo(vanishingPoint - 2, canvas.height - hoodHeight);
+            ctx.lineTo(vanishingPoint - 10, canvas.height);
+            ctx.lineTo(vanishingPoint + 10, canvas.height);
+            ctx.lineTo(vanishingPoint + 2, canvas.height - hoodHeight);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Hood shine/highlight for 3D effect
+            const shineGradient = ctx.createLinearGradient(vanishingPoint - 15, canvas.height - hoodHeight, vanishingPoint + 15, canvas.height - hoodHeight + 30);
+            shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+            shineGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = shineGradient;
+            ctx.beginPath();
+            ctx.moveTo(vanishingPoint - 18, canvas.height - hoodHeight);
+            ctx.lineTo(vanishingPoint + 18, canvas.height - hoodHeight);
+            ctx.lineTo(vanishingPoint + 12, canvas.height - hoodHeight + 30);
+            ctx.lineTo(vanishingPoint - 12, canvas.height - hoodHeight + 30);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Draw driver's head poking out with 3D lighting (smaller)
+            const headRadius = 16; // Reduced from 22
+            const headY = canvas.height - hoodHeight - 6;
+            
+            // Head shadow for depth
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.beginPath();
+            ctx.arc(vanishingPoint + 2, headY + 2, headRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Head with gradient for roundness
+            const headGradient = ctx.createRadialGradient(vanishingPoint - 4, headY - 4, 3, vanishingPoint, headY, headRadius);
+            headGradient.addColorStop(0, '#ffecd1');
+            headGradient.addColorStop(1, '#d4a574');
+            ctx.fillStyle = headGradient;
+            ctx.beginPath();
+            ctx.arc(vanishingPoint, headY, headRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Helmet with 3D gradient
+            const helmetGradient = ctx.createRadialGradient(vanishingPoint - 5, headY - 5, 0, vanishingPoint, headY, headRadius);
+            helmetGradient.addColorStop(0, '#555555');
+            helmetGradient.addColorStop(0.7, '#222222');
+            helmetGradient.addColorStop(1, '#000000');
+            ctx.fillStyle = helmetGradient;
+            ctx.beginPath();
+            ctx.arc(vanishingPoint, headY, headRadius, Math.PI, Math.PI * 2);
+            ctx.fill();
+            
+            // Helmet stripe
+            ctx.fillStyle = player.color;
+            ctx.fillRect(vanishingPoint - 13, headY - 7, 26, 4);
+            
+            // Goggles/visor with reflection
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            ctx.fillRect(vanishingPoint - 14, headY - 4, 28, 7);
+            
+            // Goggles reflection for 3D glass effect
+            const goggleGradient = ctx.createLinearGradient(vanishingPoint - 10, headY - 3, vanishingPoint - 4, headY + 1);
+            goggleGradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+            goggleGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = goggleGradient;
+            ctx.fillRect(vanishingPoint - 10, headY - 3, 8, 5);
+        }
+        
+        // Helper function to darken/lighten colors for 3D shading
+        function shadeColor(color, percent) {
+            const num = parseInt(color.replace("#",""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+            return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 +
+                (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255))
+                .toString(16).slice(1);
+        }
+        
+        function drawCountdown() {
+            if (!countdownActive) return;
+            
+            // Semi-transparent overlay
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Countdown text
+            const text = countdownNumber > 0 ? countdownNumber.toString() : 'GO!';
+            const color = countdownNumber > 0 ? '#ffff00' : '#00ff00';
+            
+            ctx.font = 'bold 150px Arial';
+            ctx.fillStyle = color;
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 8;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Draw text with outline
+            ctx.strokeText(text, canvas.width / 2, canvas.height / 2 - 50);
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2 - 50);
+            
+            // Traffic light circles
+            const lightX = canvas.width / 2;
+            const lightStartY = 120;
+            const lightSpacing = 60;
+            
+            for (let i = 0; i < 3; i++) {
+                const lightY = lightStartY + i * lightSpacing;
+                
+                // Light background
+                ctx.fillStyle = '#222222';
+                ctx.beginPath();
+                ctx.arc(lightX, lightY, 25, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Active light
+                if (countdownNumber === 3 - i) {
+                    ctx.fillStyle = '#ff0000';
+                    ctx.beginPath();
+                    ctx.arc(lightX, lightY, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Glow effect
+                    ctx.shadowColor = '#ff0000';
+                    ctx.shadowBlur = 20;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                } else if (countdownNumber < 3 - i) {
+                    ctx.fillStyle = '#660000';
+                    ctx.beginPath();
+                    ctx.arc(lightX, lightY, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            // GO green light
+            if (countdownNumber === 0) {
+                ctx.fillStyle = '#00ff00';
+                ctx.beginPath();
+                ctx.arc(lightX, lightStartY + 3 * lightSpacing, 25, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.shadowColor = '#00ff00';
+                ctx.shadowBlur = 30;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        function startCountdown() {
+            countdownActive = true;
+            countdownNumber = 3;
+            
+            const countdownInterval = setInterval(() => {
+                countdownNumber--;
+                
+                if (countdownNumber < 0) {
+                    clearInterval(countdownInterval);
+                    setTimeout(() => {
+                        countdownActive = false;
+                        gameStarted = true;
+                        gameLoop();
+                    }, 500);
+                }
+            }, 1000);
+            
+            // Start rendering countdown
+            renderCountdown();
+        }
+        
+        function renderCountdown() {
+            if (!countdownActive && !gameStarted) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawTrack();
+            
+            // Draw opponent cars in starting positions
+            opponents.forEach(opp => drawCar(opp));
+            
+            // Draw player's hood
+            drawPlayerHood();
+            
+            // Draw countdown overlay
+            drawCountdown();
+            
+            if (countdownActive) {
+                requestAnimationFrame(renderCountdown);
+            }
+        }
+        
+        function updatePlayer() {
+            // Acceleration
+            if (keys.up && player.speed < player.maxSpeed) {
+                player.speed += player.acceleration;
+            } else if (keys.down && player.speed > -player.maxSpeed / 2) {
+                player.speed -= player.acceleration * 1.5;
+            } else {
+                // Friction
+                if (player.speed > 0) {
+                    player.speed -= player.friction;
+                    if (player.speed < 0) player.speed = 0;
+                } else if (player.speed < 0) {
+                    player.speed += player.friction;
+                    if (player.speed > 0) player.speed = 0;
+                }
+            }
+            
+            // Update track position
+            player.trackPosition += player.speed;
+            
+            // Lane-based turning for 3D system
+            const laneSpeed = player.turnSpeed * 0.015;
+            
+            if (keys.left && player.lane > -1.2) {
+                player.lane -= laneSpeed;
+            }
+            if (keys.right && player.lane < 1.2) {
+                player.lane += laneSpeed;
+            }
+            
+            // Clamp lane position
+            player.lane = Math.max(-1.2, Math.min(1.2, player.lane));
+            
+            // Update speed display
+            document.getElementById('speed').textContent = Math.round(Math.abs(player.speed * 10));
+        }
+        
+        function updateOpponents() {
+            opponents.forEach(opp => {
+                // Use car-specific acceleration to vary speed more realistically
+                const speedVariation = opp.acceleration * 3; // Reduced variation
+                opp.speed += (Math.random() - 0.5) * speedVariation;
+                
+                // Speed limits based on car type - much higher and more competitive
+                const minSpeed = opp.maxSpeed * 0.75; // Increased from 0.5
+                const maxSpeed = opp.maxSpeed * 0.95; // Increased from 0.7
+                opp.speed = Math.max(minSpeed, Math.min(maxSpeed, opp.speed));
+                
+                // Update track position
+                opp.trackPosition += opp.speed;
+                
+                // Calculate screen Y position based on relative position to player
+                const relativePosition = opp.trackPosition - player.trackPosition;
+                opp.y = player.y - relativePosition;
+                
+                // Handler cars (Drifter) change lanes more frequently and smoothly
+                const laneChangeFrequency = opp.carType === 'handler' ? 0.02 : 0.01;
+                
+                // Smooth lane transitions (lane is now stored as continuous value for 3D)
+                const targetLane = Math.floor(Math.random() * 3) - 1; // -1, 0, 1
+                
+                // Change lanes based on car type
+                if (Math.random() < laneChangeFrequency) {
+                    opp.targetLane = targetLane;
+                }
+                
+                // Initialize targetLane if not set
+                if (opp.targetLane === undefined) {
+                    opp.targetLane = opp.lane;
+                }
+                
+                // Smoothly move towards target lane
+                const laneSpeed = opp.carType === 'handler' ? 0.05 : 0.03;
+                if (Math.abs(opp.lane - opp.targetLane) > 0.01) {
+                    if (opp.lane < opp.targetLane) {
+                        opp.lane += laneSpeed;
+                    } else {
+                        opp.lane -= laneSpeed;
+                    }
+                } else {
+                    opp.lane = opp.targetLane;
+                }
+            });
+        }
+        
+        function updateRoad() {
+            const scrollSpeed = player.speed * 5;
+            
+            roadLines.forEach(line => {
+                line.y += scrollSpeed;
+                if (line.y > canvas.height) {
+                    line.y = -line.height;
+                }
+            });
+            
+            // Update track offset for scenery
+            trackOffset += player.speed;
+            
+            // Smooth curve transitions
+            trackCurve += (trackCurveTarget - trackCurve) * 0.02;
+            
+            // Randomly generate new curves
+            if (Math.random() < 0.005) { // Small chance each frame to start a new curve
+                trackCurveTarget = (Math.random() - 0.5) * 2; // Random curve between -1 and 1
+            }
+            
+            // Sometimes straighten out
+            if (Math.random() < 0.003) {
+                trackCurveTarget = 0;
+            }
+        }
+        
+        function updateLaps(car) {
+            // Track position based checkpoints (every 1500 units is a checkpoint)
+            const lapLength = 6000;
+            const checkpointDistance = lapLength / 4;
+            
+            for (let i = 0; i < 4; i++) {
+                const checkpointStart = i * checkpointDistance;
+                const checkpointEnd = checkpointStart + 100;
+                
+                const positionInLap = car.trackPosition % lapLength;
+                
+                if (positionInLap >= checkpointStart && positionInLap < checkpointEnd) {
+                    if (!car.checkpoints[i]) {
+                        car.checkpoints[i] = true;
+                        
+                        // Check if all checkpoints passed in order
+                        if (car.checkpoints.every(c => c === true)) {
+                            car.laps++;
+                            car.checkpoints = [false, false, false, false];
+                            
+                            if (car === player) {
+                                document.getElementById('lapCounter').textContent = `${Math.min(car.laps + 1, 3)}/3`;
+                                
+                                if (car.laps >= 3 && !gameEnded) {
+                                    endGame();
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Reset checkpoint if we've passed it
+                    if (positionInLap > checkpointEnd + 100) {
+                        car.checkpoints[i] = false;
+                    }
+                }
+            }
+        }
+        
+        function updatePositions() {
+            const allCars = [player, ...opponents];
+            allCars.sort((a, b) => {
+                // First sort by laps
+                if (b.laps !== a.laps) return b.laps - a.laps;
+                // Then by track position
+                return b.trackPosition - a.trackPosition;
+            });
+            
+            const playerPosition = allCars.indexOf(player) + 1;
+            const suffix = ['st', 'nd', 'rd', 'th'];
+            const suffixIndex = playerPosition > 3 ? 3 : playerPosition - 1;
+            document.getElementById('position').textContent = `${playerPosition}${suffix[suffixIndex]}`;
+        }
+        
+        function endGame() {
+            gameEnded = true;
+            const allCars = [player, ...opponents];
+            allCars.sort((a, b) => {
+                if (b.laps !== a.laps) return b.laps - a.laps;
+                return b.trackPosition - a.trackPosition;
+            });
+            
+            const playerPosition = allCars.indexOf(player) + 1;
+            const suffix = ['st', 'nd', 'rd', 'th'];
+            const suffixIndex = playerPosition > 3 ? 3 : playerPosition - 1;
+            
+            document.getElementById('resultText').textContent = playerPosition === 1 ? '🏆 YOU WIN! 🏆' : 'Race Complete!';
+            document.getElementById('finalPosition').textContent = `You finished in ${playerPosition}${suffix[suffixIndex]} place!`;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+        
+        function gameLoop() {
+            if (!gameStarted || gameEnded) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawTrack();
+            updatePlayer();
+            updateOpponents();
+            updateRoad();
+            updateLaps(player);
+            opponents.forEach(opp => updateLaps(opp));
+            updatePositions();
+            
+            // Draw all cars (opponents only, not player car body)
+            opponents.forEach(opp => drawCar(opp));
+            
+            // Draw player's hood in first-person view
+            drawPlayerHood();
+            
+            requestAnimationFrame(gameLoop);
+        }
+    </script>
+</body>
+</html>
+
