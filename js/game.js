@@ -201,8 +201,9 @@ function setupTouchControls() {
     const touchControls = document.getElementById('touchControls');
     if (!touchControls) return;
 
-    // Show touch controls on devices that support touch
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    // Show touch controls only on actual touch screens (not Mac trackpads)
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    if (isCoarsePointer) {
         touchControls.classList.remove('hidden');
     }
 
