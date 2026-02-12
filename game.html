@@ -7,136 +7,140 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <a href="index.html" id="backLink">Back</a>
+    <!-- SCREEN 1: Car Selection (full page) -->
+    <div id="carSelection" class="screen">
+        <a href="index.html" class="back-link">&larr; Back</a>
+        <h1>🏎️ Choose Your Car</h1>
+        <div class="car-grid">
+            <div class="car-option" data-car="speedster">
+                <div class="car-color" style="background: #ff0000;"></div>
+                <h3>Speedster</h3>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Speed</span>
+                        <div class="stat-fill"><div class="stat-value" style="width: 95%; background: #ff4444;"></div></div>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Accel</span>
+                        <div class="stat-fill"><div class="stat-value" style="width: 70%; background: #44ff44;"></div></div>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Handling</span>
+                        <div class="stat-fill"><div class="stat-value" style="width: 60%; background: #4444ff;"></div></div>
+                    </div>
+                </div>
+                <div class="advantage">⚡ Highest top speed</div>
+            </div>
 
-    <div id="gameContainer">
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <div class="car-option" data-car="balanced">
+                <div class="car-color" style="background: #00aa00;"></div>
+                <h3>All-Rounder</h3>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Speed</span>
+                        <div class="stat-fill"><div class="stat-value" style="width: 75%; background: #ff4444;"></div></div>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Accel</span>
+                        <div class="stat-fill"><div class="stat-value" style="width: 75%; background: #44ff44;"></div></div>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Handling</span>
+                        <div class="stat-fill"><div class="stat-value" style="width: 75%; background: #4444ff;"></div></div>
+                    </div>
+                </div>
+                <div class="advantage">⚖️ Balanced performance</div>
+            </div>
 
-        <div id="ui">
-            <div>Lap: <span id="lapCounter">1/3</span></div>
-            <div>Position: <span id="position">1st</span></div>
+            <div class="car-option" data-car="accelerator">
+                <div class="car-color" style="background: #ffdd00;"></div>
+                <h3>Rocket</h3>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Speed</span>
+                        <div class="stat-fill"><div class="stat-value" style="width: 65%; background: #ff4444;"></div></div>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Accel</span>
+                        <div class="stat-fill"><div class="stat-value" style="width: 95%; background: #44ff44;"></div></div>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Handling</span>
+                        <div class="stat-fill"><div class="stat-value" style="width: 70%; background: #4444ff;"></div></div>
+                    </div>
+                </div>
+                <div class="advantage">🚀 Lightning acceleration</div>
+            </div>
+
+            <div class="car-option" data-car="handler">
+                <div class="car-color" style="background: #0066ff;"></div>
+                <h3>Drifter</h3>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Speed</span>
+                        <div class="stat-fill"><div class="stat-value" style="width: 70%; background: #ff4444;"></div></div>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Accel</span>
+                        <div class="stat-fill"><div class="stat-value" style="width: 65%; background: #44ff44;"></div></div>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Handling</span>
+                        <div class="stat-fill"><div class="stat-value" style="width: 95%; background: #4444ff;"></div></div>
+                    </div>
+                </div>
+                <div class="advantage">🎯 Superior handling</div>
+            </div>
         </div>
+        <button id="confirmCarButton" disabled>Select a Car</button>
+    </div>
 
-        <div id="speedometer">
-            <span id="speed">0</span> km/h
-        </div>
-
-        <div id="carSelection">
-            <h2>🏎️ Choose Your Car</h2>
-            <p style="margin-bottom: 10px; color: #ccc; font-size: 14px;">Select a car, then confirm your choice</p>
-            <div class="car-grid">
-                <div class="car-option" data-car="speedster">
-                    <h3>🔴 Speedster</h3>
-                    <div class="car-preview" style="background: #ff0000;"></div>
-                    <div class="stat-bar">
-                        <div class="stat-label">Top Speed</div>
-                        <div class="stat-fill">
-                            <div class="stat-value" style="width: 95%; background: #ff4444;"></div>
-                        </div>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-label">Acceleration</div>
-                        <div class="stat-fill">
-                            <div class="stat-value" style="width: 70%; background: #44ff44;"></div>
-                        </div>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-label">Handling</div>
-                        <div class="stat-fill">
-                            <div class="stat-value" style="width: 60%; background: #4444ff;"></div>
-                        </div>
-                    </div>
-                    <div class="advantage">⚡ Highest top speed</div>
+    <!-- SCREEN 2: Instructions (full page) -->
+    <div id="instructions" class="screen hidden">
+        <div class="instructions-content">
+            <h1>🏎️ Get Ready to Race!</h1>
+            <div class="controls-grid">
+                <div class="control-item">
+                    <div class="key">&uarr;</div>
+                    <span>Accelerate</span>
                 </div>
-
-                <div class="car-option" data-car="balanced">
-                    <h3>🟢 All-Rounder</h3>
-                    <div class="car-preview" style="background: #00aa00;"></div>
-                    <div class="stat-bar">
-                        <div class="stat-label">Top Speed</div>
-                        <div class="stat-fill">
-                            <div class="stat-value" style="width: 75%; background: #ff4444;"></div>
-                        </div>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-label">Acceleration</div>
-                        <div class="stat-fill">
-                            <div class="stat-value" style="width: 75%; background: #44ff44;"></div>
-                        </div>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-label">Handling</div>
-                        <div class="stat-fill">
-                            <div class="stat-value" style="width: 75%; background: #4444ff;"></div>
-                        </div>
-                    </div>
-                    <div class="advantage">⚖️ Balanced performance</div>
+                <div class="control-item">
+                    <div class="key">&darr;</div>
+                    <span>Brake</span>
                 </div>
-
-                <div class="car-option" data-car="accelerator">
-                    <h3>🟡 Rocket</h3>
-                    <div class="car-preview" style="background: #ffdd00;"></div>
-                    <div class="stat-bar">
-                        <div class="stat-label">Top Speed</div>
-                        <div class="stat-fill">
-                            <div class="stat-value" style="width: 65%; background: #ff4444;"></div>
-                        </div>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-label">Acceleration</div>
-                        <div class="stat-fill">
-                            <div class="stat-value" style="width: 95%; background: #44ff44;"></div>
-                        </div>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-label">Handling</div>
-                        <div class="stat-fill">
-                            <div class="stat-value" style="width: 70%; background: #4444ff;"></div>
-                        </div>
-                    </div>
-                    <div class="advantage">🚀 Lightning acceleration</div>
+                <div class="control-item">
+                    <div class="key">&larr;</div>
+                    <span>Steer Left</span>
                 </div>
-
-                <div class="car-option" data-car="handler">
-                    <h3>🔵 Drifter</h3>
-                    <div class="car-preview" style="background: #0066ff;"></div>
-                    <div class="stat-bar">
-                        <div class="stat-label">Top Speed</div>
-                        <div class="stat-fill">
-                            <div class="stat-value" style="width: 70%; background: #ff4444;"></div>
-                        </div>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-label">Acceleration</div>
-                        <div class="stat-fill">
-                            <div class="stat-value" style="width: 65%; background: #44ff44;"></div>
-                        </div>
-                    </div>
-                    <div class="stat-bar">
-                        <div class="stat-label">Handling</div>
-                        <div class="stat-fill">
-                            <div class="stat-value" style="width: 95%; background: #4444ff;"></div>
-                        </div>
-                    </div>
-                    <div class="advantage">🎯 Superior handling</div>
+                <div class="control-item">
+                    <div class="key">&rarr;</div>
+                    <span>Steer Right</span>
                 </div>
             </div>
-            <button id="confirmCarButton" disabled>Confirm Selection</button>
-        </div>
-
-        <div id="instructions" class="hidden">
-            <h2>🏎️ Racing Game</h2>
-            <p><strong>Arrow Keys</strong> - Steer and Accelerate</p>
-            <p><strong>&uarr;</strong> Accelerate | <strong>&darr;</strong> Brake</p>
-            <p><strong>&larr;</strong> Left | <strong>&rarr;</strong> Right</p>
-            <p style="margin-top: 20px; color: #ffd700;">Complete 3 laps and beat your opponents!</p>
+            <p class="race-goal">Complete 3 laps and beat your opponents!</p>
             <button id="startButton">START RACE</button>
         </div>
+    </div>
 
-        <div id="gameOver">
-            <h2 id="resultText">Race Complete!</h2>
-            <p id="finalPosition" style="font-size: 24px; margin: 20px 0;"></p>
-            <button id="restartButton">Race Again</button>
+    <!-- SCREEN 3: Game (hidden until race starts) -->
+    <div id="gameWrapper" class="hidden">
+        <div id="gameContainer">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+            <div id="ui">
+                <div>Lap: <span id="lapCounter">1/3</span></div>
+                <div>Position: <span id="position">1st</span></div>
+            </div>
+
+            <div id="speedometer">
+                <span id="speed">0</span> km/h
+            </div>
+
+            <div id="gameOver">
+                <h2 id="resultText">Race Complete!</h2>
+                <p id="finalPosition"></p>
+                <button id="restartButton">Race Again</button>
+            </div>
         </div>
     </div>
 

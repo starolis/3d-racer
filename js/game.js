@@ -240,7 +240,9 @@ document.querySelectorAll('.car-option').forEach(option => {
         document.querySelectorAll('.car-option').forEach(opt => opt.classList.remove('selected'));
         this.classList.add('selected');
         selectedCarType = this.dataset.car;
-        document.getElementById('confirmCarButton').disabled = false;
+        const btn = document.getElementById('confirmCarButton');
+        btn.disabled = false;
+        btn.textContent = 'Race with ' + carTypes[selectedCarType].name + '!';
     });
 });
 
@@ -256,9 +258,7 @@ document.getElementById('confirmCarButton').addEventListener('click', () => {
         // Swap AI opponent colors so they don't match the player's car
         opponents.forEach(opp => {
             if (opp.carType === selectedCarType) {
-                // Find a car type that isn't selected and isn't this opponent's type
                 const altTypes = Object.keys(carTypes).filter(t => t !== selectedCarType);
-                // Pick one that another AI isn't already using
                 const usedTypes = opponents.map(o => o.carType);
                 const available = altTypes.filter(t => !usedTypes.includes(t) || t === opp.carType);
                 const altType = available[0] || altTypes[0];
@@ -266,13 +266,16 @@ document.getElementById('confirmCarButton').addEventListener('click', () => {
             }
         });
 
+        // Transition from car selection to instructions screen
         document.getElementById('carSelection').classList.add('hidden');
         document.getElementById('instructions').classList.remove('hidden');
     }
 });
 
 document.getElementById('startButton').addEventListener('click', () => {
+    // Transition from instructions to game screen
     document.getElementById('instructions').classList.add('hidden');
+    document.getElementById('gameWrapper').classList.remove('hidden');
     startCountdown();
 });
 
